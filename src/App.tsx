@@ -3,7 +3,6 @@ import { catBreeds } from "./catBreeds";
 import "./App.css"
 
 const apiKey = import.meta.env.VITE_API_KEY;
-console.log(apiKey);
 
 type Breed = {
   name: string;
