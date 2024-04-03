@@ -5,7 +5,6 @@ addEventListener("message", async (message) => {
     try {
       const response = await fetch(url);
       const data = await response.json();
-
       postMessage(data);
     } catch (err) {
       postMessage(err);

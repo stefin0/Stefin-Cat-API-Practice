@@ -14,6 +14,7 @@ function App() {
     correctAnswer: ""
   });
   const [userAnswer, setUserAnswer] = useState<string | null>(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
 
   const [worker, setWorker] = useState<Worker | null>(null);
 
@@ -38,10 +39,15 @@ function App() {
   }, [])
 
   const fetchQuestion = () => {
+    setIsButtonDisabled(true);
+
     if (worker) {
       worker.postMessage({ command: "generate" });
     }
     setUserAnswer(null);
+    setTimeout(() => {
+      setIsButtonDisabled(false);
+    },10000)
   }
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -110,7 +116,7 @@ function App() {
 
       </form>
 
-      <button onClick={fetchQuestion}>Generate Trivia Question</button>
+      <button onClick={fetchQuestion} disabled={isButtonDisabled}>Generate Trivia Question</button>
       <div dangerouslySetInnerHTML={{ __html: answer.question }}></div>
       {answer.question && (
         <div>
