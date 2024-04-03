@@ -2,11 +2,28 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { catBreeds } from "./catBreeds";
 import "./App.css"
 
-const apiKey =
-  "live_ejuCYRfwWmzGOtiEqKDbU1W4bWgIufefclKq5wq9jY7g0gpSmbOhXv1KttM2ak94";
+const apiKey = "live_ejuCYRfwWmzGOtiEqKDbU1W4bWgIufefclKq5wq9jY7g0gpSmbOhXv1KttM2ak94"
+
+type Breed = {
+  name: string;
+  origin: string;
+  rare: number;
+  life_span: string;
+  hypoallergenic: number;
+  description: string;
+}
+
+type Photo  = {
+  url: string;
+  breeds: Breed[];
+}
+
+type NameToIdMap = {
+  [key: string]: string;
+};
 
 function App() {
-  const [photo, setPhoto] = useState(null);
+  const [photo, setPhoto] = useState<Photo | null>(null);
   const [formData, setFormData] = useState({ breed: "" });
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -17,7 +34,7 @@ function App() {
     }));
   }
 
-  const nameToId = catBreeds.reduce((acc, breed) => {
+  const nameToId: NameToIdMap = catBreeds.reduce<NameToIdMap>((acc, breed) => {
     acc[breed.name] = breed.id;
     return acc;
   }, {});
@@ -68,7 +85,7 @@ function App() {
         />
         <datalist id="breeds">
           {catBreeds.map((breed) => (
-            <option value={breed.name}></option>
+            <option key={breed.id} value={breed.name}></option>
           ))}
         </datalist>
         <button>Search</button>
