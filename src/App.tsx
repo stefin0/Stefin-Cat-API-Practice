@@ -1,30 +1,48 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { catBreeds } from "./catBreeds";
+import { Photo, NameToIdMap } from "./types";
 import "./App.css"
 
 const apiKey = import.meta.env.VITE_API_KEY;
 
-type Breed = {
-  name: string;
-  origin: string;
-  rare: number;
-  life_span: string;
-  hypoallergenic: number;
-  description: string;
-}
-
-type Photo  = {
-  url: string;
-  breeds: Breed[];
-}
-
-type NameToIdMap = {
-  [key: string]: string;
-};
-
 function App() {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [formData, setFormData] = useState({ breed: "" });
+
+  const [answer, setAnswer] = useState({
+    question: "",
+    correctAnswer: ""
+  });
+  const [userAnswer, setUserAnswer] = useState<string | null>(null);
+
+  const [worker, setWorker] = useState<Worker | null>(null);
+
+  useEffect(() => {
+    // Create instance of worker (Vite specific)
+    const worker = new Worker(new URL('./triviaWorker.js', import.meta.url))
+
+    worker.onmessage = (event) => {
+      const fetchedData = event.data;
+      setAnswer(prevState => ({
+        ...prevState,
+        question: fetchedData.results[0].question,
+        correctAnswer: fetchedData.results[0].correct_answer
+      }));
+    }
+
+    setWorker(worker);
+
+    return () => {
+      worker.terminate();
+    }
+  }, [])
+
+  const fetchQuestion = () => {
+    if (worker) {
+      worker.postMessage({ command: "generate" });
+    }
+    setUserAnswer(null);
+  }
 
   function handleChange(e: ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
@@ -74,7 +92,7 @@ function App() {
         </>
       )}
       <form onSubmit={fetchPhoto}>
-        <label style={{display: "block"}}>Search cat by breed</label>
+        <label style={{ display: "block" }}>Search cat by breed</label>
         <input
           id="breed"
           name="breed"
@@ -89,7 +107,19 @@ function App() {
           ))}
         </datalist>
         <button>Search</button>
+
       </form>
+
+      <button onClick={fetchQuestion}>Generate Trivia Question</button>
+      <div dangerouslySetInnerHTML={{ __html: answer.question }}></div>
+      {answer.question && (
+        <div>
+          <button onClick={() => setUserAnswer("True")}>True</button>
+          <button onClick={() => setUserAnswer("False")}>False</button>
+        </div>)
+      }
+      {userAnswer && <div>{userAnswer === answer.correctAnswer ? "Correct" : "Incorrect"}</div>}
+
     </main>
   );
 }
