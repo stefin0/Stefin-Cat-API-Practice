@@ -2,7 +2,8 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { catBreeds } from "./catBreeds";
 import "./App.css"
 
-const apiKey = "live_ejuCYRfwWmzGOtiEqKDbU1W4bWgIufefclKq5wq9jY7g0gpSmbOhXv1KttM2ak94"
+const apiKey = import.meta.env.VITE_API_KEY;
+console.log(apiKey);
 
 type Breed = {
   name: string;
